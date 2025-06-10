@@ -250,7 +250,7 @@ const FileExplorer = ({ currentPath = '', viewMode = 'grid', onNavigate, searchQ
         ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4" 
         : "space-y-2"
       }>
-        {files.map((file, index) => {
+{files.map((file, index) => {
           const commonProps = {
             file,
             onClick: () => handleFileClick(file),
@@ -258,9 +258,9 @@ const FileExplorer = ({ currentPath = '', viewMode = 'grid', onNavigate, searchQ
             index
           };
           return viewMode === 'grid' ? (
-            <FileGridItem {...commonProps} />
+            <FileGridItem key={file.id} {...commonProps} />
           ) : (
-            <FileListItem {...commonProps} />
+            <FileListItem key={file.id} {...commonProps} />
           );
         })}
       </div>

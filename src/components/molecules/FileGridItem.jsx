@@ -5,9 +5,8 @@ import FileIconDisplay from '@/components/molecules/FileIconDisplay';
 import FileDetails from '@/components/molecules/FileDetails';
 
 const FileGridItem = ({ file, onClick, onContextMenu, showShareButton = true, index }) => {
-    return (
+return (
         <motion.div
-            key={file.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
