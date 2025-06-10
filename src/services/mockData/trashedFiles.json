@@ -1,0 +1,44 @@
+[
+  {
+    "id": "trash_1",
+    "name": "old_presentation.pptx",
+    "size": 4194304,
+    "type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "uploadDate": "2024-01-01T10:00:00Z",
+    "modifiedDate": "2024-01-05T14:30:00Z",
+    "deletedDate": "2024-01-26T16:20:00Z",
+    "path": "",
+    "isFolder": false,
+    "parentId": null,
+    "thumbnailUrl": null,
+    "shareUrl": null
+  },
+  {
+    "id": "trash_2",
+    "name": "temp_files",
+    "size": 0,
+    "type": "folder",
+    "uploadDate": "2023-12-15T09:00:00Z",
+    "modifiedDate": "2024-01-10T12:00:00Z",
+    "deletedDate": "2024-01-25T10:15:00Z",
+    "path": "",
+    "isFolder": true,
+    "parentId": null,
+    "thumbnailUrl": null,
+    "shareUrl": null
+  },
+  {
+    "id": "trash_3",
+    "name": "duplicate_image.jpg",
+    "size": 1572864,
+    "type": "image/jpeg",
+    "uploadDate": "2024-01-08T13:45:00Z",
+    "modifiedDate": "2024-01-08T13:45:00Z",
+    "deletedDate": "2024-01-24T09:30:00Z",
+    "path": "Team Photos",
+    "isFolder": false,
+    "parentId": "2",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop",
+    "shareUrl": null
+  }
+]

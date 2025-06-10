@@ -1,0 +1,38 @@
+[
+  {
+    "id": "share_1",
+    "fileId": "1",
+    "fileName": "Project Proposal.pdf",
+    "url": "https://cloudvault.app/s/kN8mP2qR7vWx",
+    "createdDate": "2024-01-16T14:20:00Z",
+    "expiryDate": "2024-02-15T14:20:00Z",
+    "password": null
+  },
+  {
+    "id": "share_2",
+    "fileId": "3",
+    "fileName": "Budget_2024.xlsx",
+    "url": "https://cloudvault.app/s/zY5hL9nE3bQm",
+    "createdDate": "2024-01-22T16:45:00Z",
+    "expiryDate": null,
+    "password": null
+  },
+  {
+    "id": "share_3",
+    "fileId": "5",
+    "fileName": "team_meeting.jpg",
+    "url": "https://cloudvault.app/s/jF4tW8xC6aGp",
+    "createdDate": "2024-01-19T11:30:00Z",
+    "expiryDate": "2024-03-19T11:30:00Z",
+    "password": "team2024"
+  },
+  {
+    "id": "share_4",
+    "fileId": "4",
+    "fileName": "presentation_draft.pptx",
+    "url": "https://cloudvault.app/s/rH7dM3kS9vBn",
+    "createdDate": "2024-01-26T09:15:00Z",
+    "expiryDate": null,
+    "password": null
+  }
+]
