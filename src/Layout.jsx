@@ -41,12 +41,8 @@ const Layout = () => {
             </div>
           </div>
 
-          {/* Actions */}
+{/* Actions */}
           <div className="flex items-center space-x-3">
-            <button className="hidden md:flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-              <ApperIcon name="Upload" size={16} />
-              <span>Upload</span>
-            </button>
             <button className="p-2 rounded-lg hover:bg-surface-100 transition-colors">
               <ApperIcon name="Settings" size={20} className="text-gray-600" />
             </button>
