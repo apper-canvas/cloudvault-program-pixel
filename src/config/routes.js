@@ -1,9 +1,9 @@
-import Home from '../pages/Home';
-import Files from '../pages/Files';
-import Recent from '../pages/Recent';
-import Shared from '../pages/Shared';
-import Trash from '../pages/Trash';
-import NotFound from '../pages/NotFound';
+import HomePage from '@/components/pages/HomePage';
+import FilesPage from '@/components/pages/FilesPage';
+import RecentPage from '@/components/pages/RecentPage';
+import SharedPage from '@/components/pages/SharedPage';
+import TrashPage from '@/components/pages/TrashPage';
+import NotFoundPage from '@/components/pages/NotFoundPage';
 
 export const routes = {
   home: {
@@ -11,35 +11,35 @@ export const routes = {
     label: 'Home',
     path: '/home',
     icon: 'Home',
-    component: Home
+component: HomePage
   },
   files: {
     id: 'files',
     label: 'Files',
     path: '/files',
     icon: 'Folder',
-    component: Files
+component: FilesPage
   },
   recent: {
     id: 'recent',
     label: 'Recent',
     path: '/recent',
     icon: 'Clock',
-    component: Recent
+component: RecentPage
   },
   shared: {
     id: 'shared',
     label: 'Shared',
     path: '/shared',
     icon: 'Share2',
-    component: Shared
+component: SharedPage
   },
   trash: {
     id: 'trash',
     label: 'Trash',
     path: '/trash',
     icon: 'Trash2',
-    component: Trash
+component: TrashPage
   }
 };
 

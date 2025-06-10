@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import ApperIcon from '../components/ApperIcon';
-import MainFeature from '../components/MainFeature';
+import ApperIcon from '@/components/ApperIcon';
+import FileExplorer from '@/components/organisms/FileExplorer';
+import Breadcrumbs from '@/components/molecules/Breadcrumbs';
+import Button from '@/components/atoms/Button';
 
-const Files = () => {
+const FilesPage = () => {
   const [currentPath, setCurrentPath] = useState('');
   const [viewMode, setViewMode] = useState('grid');
 
@@ -31,65 +32,47 @@ const Files = () => {
           <div className="flex items-center space-x-3">
             {/* View Toggle */}
             <div className="flex items-center space-x-1 bg-surface-100 rounded-lg p-1">
-              <button
+              <Button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded-md transition-colors ${
                   viewMode === 'grid' 
                     ? 'bg-white shadow-sm text-primary' 
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
+                whileHover={false} // Disable motion for these toggle buttons
+                whileTap={false}
               >
                 <ApperIcon name="Grid3X3" size={16} />
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setViewMode('list')}
                 className={`p-2 rounded-md transition-colors ${
                   viewMode === 'list' 
                     ? 'bg-white shadow-sm text-primary' 
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
+                whileHover={false} // Disable motion for these toggle buttons
+                whileTap={false}
               >
                 <ApperIcon name="List" size={16} />
-              </button>
+              </Button>
             </div>
           </div>
         </div>
 
         {/* Breadcrumbs */}
         {breadcrumbs.length > 0 && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center space-x-2 mt-4 text-sm"
-          >
-            <button
-              onClick={() => setCurrentPath('')}
-              className="text-primary hover:text-primary/80 transition-colors"
-            >
-              All Files
-            </button>
-            {breadcrumbs.map((segment, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <ApperIcon name="ChevronRight" size={14} className="text-gray-400" />
-                <button
-                  onClick={() => handleBreadcrumbClick(index)}
-                  className={`transition-colors ${
-                    index === breadcrumbs.length - 1 
-                      ? 'text-gray-900 font-medium' 
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  {segment}
-                </button>
-              </div>
-            ))}
-          </motion.div>
+          <Breadcrumbs 
+            pathSegments={breadcrumbs}
+            onNavigateToRoot={() => setCurrentPath('')}
+            onNavigateToSegment={handleBreadcrumbClick}
+          />
         )}
       </div>
 
       {/* File Browser */}
       <div className="flex-1 overflow-hidden">
-        <MainFeature 
+        <FileExplorer 
           currentPath={currentPath}
           viewMode={viewMode}
           onNavigate={handleNavigate}
@@ -99,4 +82,4 @@ const Files = () => {
   );
 };
 
-export default Files;
+export default FilesPage;

@@ -1,16 +1,16 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import Layout from './Layout';
-import { routeArray } from './config/routes';
-import NotFound from './pages/NotFound';
+import Layout from '@/Layout';
+import { routeArray } from '@/config/routes';
+import NotFoundPage from '@/components/pages/NotFoundPage';
 
 function App() {
   return (
     <BrowserRouter>
       <div className="h-screen flex flex-col overflow-hidden bg-background">
-        <Routes>
+<Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<routeArray[0].component />} />
+            <Route index element={<routeArray[0].component />} /> {/* Index route points to Home, so its component must be correctly mapped */}
             {routeArray.map(route => (
               <Route 
                 key={route.id} 
@@ -18,7 +18,7 @@ function App() {
                 element={<route.component />} 
               />
             ))}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
         
