@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import ApperIcon from '@/components/ApperIcon';
-import fileService from '@/services/api/fileService';
+import trashedFileService from '@/services/api/trashedFileService';
 import Button from '@/components/atoms/Button';
 import Checkbox from '@/components/atoms/Checkbox';
 import LoadingSkeleton from '@/components/molecules/LoadingSkeleton';
@@ -20,12 +20,27 @@ const TrashedFilesList = () => {
     loadTrashedFiles();
   }, []);
 
-  const loadTrashedFiles = async () => {
+const loadTrashedFiles = async () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await fileService.getTrashedFiles();
-      setTrashedFiles(result);
+      const result = await trashedFileService.getAll();
+      // Map database fields to component expected format
+      const mappedFiles = result.map(file => ({
+        id: file.Id,
+        name: file.Name,
+        size: file.size,
+        type: file.type,
+        uploadDate: file.upload_date,
+        modifiedDate: file.modified_date,
+        deletedDate: file.deleted_date,
+        path: file.path,
+        isFolder: file.is_folder,
+        parentId: file.parent_id,
+        thumbnailUrl: file.thumbnail_url,
+        shareUrl: file.share_url
+      }));
+      setTrashedFiles(mappedFiles);
     } catch (err) {
       setError(err.message || 'Failed to load trash');
       toast.error('Failed to load trash');
@@ -34,9 +49,9 @@ const TrashedFilesList = () => {
     }
   };
 
-  const restoreFile = async (file) => {
+const restoreFile = async (file) => {
     try {
-      await fileService.restoreFile(file.id);
+      await trashedFileService.restoreFile(file.id);
       await loadTrashedFiles();
       toast.success(`${file.name} restored successfully`);
     } catch (err) {
@@ -44,10 +59,10 @@ const TrashedFilesList = () => {
     }
   };
 
-  const permanentlyDeleteFile = async (file) => {
+const permanentlyDeleteFile = async (file) => {
     if (window.confirm(`Are you sure you want to permanently delete "${file.name}"? This action cannot be undone.`)) {
       try {
-        await fileService.permanentlyDeleteFile(file.id);
+        await trashedFileService.permanentlyDeleteFile(file.id);
         await loadTrashedFiles();
         toast.success(`${file.name} permanently deleted`);
       } catch (err) {
@@ -56,10 +71,10 @@ const TrashedFilesList = () => {
     }
   };
 
-  const emptyTrash = async () => {
+const emptyTrash = async () => {
     if (window.confirm('Are you sure you want to permanently delete all files in trash? This action cannot be undone.')) {
       try {
-        await fileService.emptyTrash();
+        await trashedFileService.emptyTrash();
         await loadTrashedFiles();
         toast.success('Trash emptied successfully');
       } catch (err) {
@@ -68,11 +83,11 @@ const TrashedFilesList = () => {
     }
   };
 
-  const restoreSelected = async () => {
+const restoreSelected = async () => {
     if (selectedFiles.length === 0) return;
     
     try {
-      await Promise.all(selectedFiles.map(fileId => fileService.restoreFile(fileId)));
+      await Promise.all(selectedFiles.map(fileId => trashedFileService.restoreFile(fileId)));
       await loadTrashedFiles();
       setSelectedFiles([]);
       toast.success(`${selectedFiles.length} file(s) restored successfully`);

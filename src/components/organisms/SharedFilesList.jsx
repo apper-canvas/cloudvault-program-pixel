@@ -18,7 +18,7 @@ const SharedFilesList = () => {
     loadSharedFiles();
   }, []);
 
-  const loadSharedFiles = async () => {
+const loadSharedFiles = async () => {
     setLoading(true);
     setError(null);
     try {

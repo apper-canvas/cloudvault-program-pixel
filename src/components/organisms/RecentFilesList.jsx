@@ -17,12 +17,26 @@ const RecentFilesList = () => {
     loadRecentFiles();
   }, []);
 
-  const loadRecentFiles = async () => {
+const loadRecentFiles = async () => {
     setLoading(true);
     setError(null);
     try {
       const result = await fileService.getRecentFiles();
-      setRecentFiles(result);
+      // Map database fields to component expected format
+      const mappedFiles = result.map(file => ({
+        id: file.Id,
+        name: file.Name,
+        size: file.size,
+        type: file.type,
+        uploadDate: file.upload_date,
+        modifiedDate: file.modified_date,
+        path: file.path,
+        isFolder: file.is_folder,
+        parentId: file.parent_id,
+        thumbnailUrl: file.thumbnail_url,
+        shareUrl: file.share_url
+      }));
+      setRecentFiles(mappedFiles);
     } catch (err) {
       setError(err.message || 'Failed to load recent files');
       toast.error('Failed to load recent files');

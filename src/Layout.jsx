@@ -1,9 +1,26 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ApperIcon from './components/ApperIcon';
 import { routeArray } from './config/routes';
+import { AuthContext } from './App';
+import Button from './components/atoms/Button';
 
+const LogoutButton = () => {
+  const { logout } = useContext(AuthContext);
+  
+  return (
+    <Button
+      onClick={logout}
+      className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
+      title="Logout"
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      <ApperIcon name="LogOut" size={20} className="text-gray-600" />
+    </Button>
+  );
+};
 const Layout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -46,6 +63,7 @@ const Layout = () => {
             <button className="p-2 rounded-lg hover:bg-surface-100 transition-colors">
               <ApperIcon name="Settings" size={20} className="text-gray-600" />
             </button>
+            <LogoutButton />
           </div>
         </div>
       </header>

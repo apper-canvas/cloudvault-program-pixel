@@ -45,15 +45,30 @@ const FileExplorer = ({ currentPath = '', viewMode = 'grid', onNavigate, searchQ
     };
   }, [currentPath]); // Re-attach listener if currentPath changes
 
-  const loadFiles = async () => {
+const loadFiles = async () => {
     setLoading(true);
     setError(null);
     try {
       const result = await fileService.getFilesByPath(currentPath);
+      // Map database fields to component expected format
+      const mappedFiles = result.map(file => ({
+        id: file.Id,
+        name: file.Name,
+        size: file.size,
+        type: file.type,
+        uploadDate: file.upload_date,
+        modifiedDate: file.modified_date,
+        path: file.path,
+        isFolder: file.is_folder,
+        parentId: file.parent_id,
+        thumbnailUrl: file.thumbnail_url,
+        shareUrl: file.share_url
+      }));
+      
       // Filter files based on search query if provided
       const filteredResult = searchQuery 
-        ? result.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
-        : result;
+        ? mappedFiles.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        : mappedFiles;
       setFiles(filteredResult);
     } catch (err) {
       setError(err.message || 'Failed to load files');

@@ -1,147 +1,346 @@
-import filesData from '../mockData/files.json';
-import trashedFilesData from '../mockData/trashedFiles.json';
-
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 class FileService {
   constructor() {
-    this.files = [...filesData];
-    this.trashedFiles = [...trashedFilesData];
+    // Initialize ApperClient
+    const { ApperClient } = window.ApperSDK;
+    this.apperClient = new ApperClient({
+      apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+      apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+    });
   }
 
   async getAll() {
-    await delay(300);
-    return [...this.files];
+    try {
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "size" } },
+          { field: { Name: "type" } },
+          { field: { Name: "upload_date" } },
+          { field: { Name: "modified_date" } },
+          { field: { Name: "path" } },
+          { field: { Name: "is_folder" } },
+          { field: { Name: "parent_id" } },
+          { field: { Name: "thumbnail_url" } },
+          { field: { Name: "share_url" } }
+        ]
+      };
+
+      const response = await this.apperClient.fetchRecords('file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching files:", error);
+      throw error;
+    }
   }
 
   async getById(id) {
-    await delay(200);
-    const file = this.files.find(f => f.id === id);
-    if (!file) throw new Error('File not found');
-    return { ...file };
+    try {
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "size" } },
+          { field: { Name: "type" } },
+          { field: { Name: "upload_date" } },
+          { field: { Name: "modified_date" } },
+          { field: { Name: "path" } },
+          { field: { Name: "is_folder" } },
+          { field: { Name: "parent_id" } },
+          { field: { Name: "thumbnail_url" } },
+          { field: { Name: "share_url" } }
+        ]
+      };
+
+      const response = await this.apperClient.getRecordById('file', parseInt(id), params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching file with ID ${id}:`, error);
+      throw error;
+    }
   }
 
   async getFilesByPath(path = '') {
-    await delay(300);
-    const filteredFiles = this.files.filter(file => file.path === path);
-    return [...filteredFiles];
+    try {
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "size" } },
+          { field: { Name: "type" } },
+          { field: { Name: "upload_date" } },
+          { field: { Name: "modified_date" } },
+          { field: { Name: "path" } },
+          { field: { Name: "is_folder" } },
+          { field: { Name: "parent_id" } },
+          { field: { Name: "thumbnail_url" } },
+          { field: { Name: "share_url" } }
+        ],
+        where: [
+          {
+            FieldName: "path",
+            Operator: "EqualTo",
+            Values: [path]
+          }
+        ]
+      };
+
+      const response = await this.apperClient.fetchRecords('file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching files by path:", error);
+      throw error;
+    }
   }
 
   async getRecentFiles() {
-    await delay(300);
-    const recentFiles = this.files
-      .filter(file => {
-        const modifiedDate = new Date(file.modifiedDate);
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        return modifiedDate > thirtyDaysAgo;
-      })
-      .sort((a, b) => new Date(b.modifiedDate) - new Date(a.modifiedDate))
-      .slice(0, 20);
-    return [...recentFiles];
-  }
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  async getTrashedFiles() {
-    await delay(300);
-    return [...this.trashedFiles];
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "size" } },
+          { field: { Name: "type" } },
+          { field: { Name: "upload_date" } },
+          { field: { Name: "modified_date" } },
+          { field: { Name: "path" } },
+          { field: { Name: "is_folder" } },
+          { field: { Name: "parent_id" } },
+          { field: { Name: "thumbnail_url" } },
+          { field: { Name: "share_url" } }
+        ],
+        where: [
+          {
+            FieldName: "modified_date",
+            Operator: "GreaterThan",
+            Values: [thirtyDaysAgo.toISOString()]
+          }
+        ],
+        orderBy: [
+          {
+            fieldName: "modified_date",
+            sorttype: "DESC"
+          }
+        ],
+        pagingInfo: {
+          limit: 20,
+          offset: 0
+        }
+      };
+
+      const response = await this.apperClient.fetchRecords('file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching recent files:", error);
+      throw error;
+    }
   }
 
   async create(fileData) {
-    await delay(400);
-    const newFile = {
-      id: Date.now().toString(),
-      ...fileData,
-      uploadDate: new Date().toISOString(),
-      modifiedDate: new Date().toISOString()
-    };
-    this.files.push(newFile);
-    return { ...newFile };
+    try {
+      const params = {
+        records: [
+          {
+            Name: fileData.name,
+            size: fileData.size,
+            type: fileData.type,
+            upload_date: fileData.uploadDate || new Date().toISOString(),
+            modified_date: fileData.modifiedDate || new Date().toISOString(),
+            path: fileData.path || "",
+            is_folder: fileData.isFolder || false,
+            parent_id: fileData.parentId || "",
+            thumbnail_url: fileData.thumbnailUrl || "",
+            share_url: fileData.shareUrl || ""
+          }
+        ]
+      };
+
+      const response = await this.apperClient.createRecord('file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          throw new Error('Failed to create file');
+        }
+
+        return successfulRecords[0]?.data;
+      }
+    } catch (error) {
+      console.error("Error creating file:", error);
+      throw error;
+    }
   }
 
   async update(id, data) {
-    await delay(300);
-    const index = this.files.findIndex(f => f.id === id);
-    if (index === -1) throw new Error('File not found');
-    
-    this.files[index] = {
-      ...this.files[index],
-      ...data,
-      modifiedDate: new Date().toISOString()
-    };
-    return { ...this.files[index] };
+    try {
+      const updateData = {
+        Id: parseInt(id)
+      };
+
+      // Only include updateable fields
+      if (data.name !== undefined) updateData.Name = data.name;
+      if (data.size !== undefined) updateData.size = data.size;
+      if (data.type !== undefined) updateData.type = data.type;
+      if (data.modified_date !== undefined) updateData.modified_date = data.modified_date;
+      if (data.path !== undefined) updateData.path = data.path;
+      if (data.is_folder !== undefined) updateData.is_folder = data.is_folder;
+      if (data.parent_id !== undefined) updateData.parent_id = data.parent_id;
+      if (data.thumbnail_url !== undefined) updateData.thumbnail_url = data.thumbnail_url;
+      if (data.share_url !== undefined) updateData.share_url = data.share_url;
+
+      const params = {
+        records: [updateData]
+      };
+
+      const response = await this.apperClient.updateRecord('file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successfulUpdates = response.results.filter(result => result.success);
+        const failedUpdates = response.results.filter(result => !result.success);
+
+        if (failedUpdates.length > 0) {
+          console.error(`Failed to update ${failedUpdates.length} records:${JSON.stringify(failedUpdates)}`);
+          throw new Error('Failed to update file');
+        }
+
+        return successfulUpdates[0]?.data;
+      }
+    } catch (error) {
+      console.error("Error updating file:", error);
+      throw error;
+    }
   }
 
   async delete(id) {
-    await delay(300);
-    const index = this.files.findIndex(f => f.id === id);
-    if (index === -1) throw new Error('File not found');
-    
-    const file = this.files[index];
-    this.files.splice(index, 1);
-    
-    // Move to trash
-    this.trashedFiles.push({
-      ...file,
-      deletedDate: new Date().toISOString()
-    });
-    
-    return true;
+    try {
+      // First get the file to move it to trash
+      const file = await this.getById(id);
+      
+      // Create trashed file record
+      await this.createTrashedFile({
+        ...file,
+        deleted_date: new Date().toISOString()
+      });
+
+      // Delete from files table
+      const params = {
+        RecordIds: [parseInt(id)]
+      };
+
+      const response = await this.apperClient.deleteRecord('file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      throw error;
+    }
   }
 
   async deleteFile(id) {
     return this.delete(id);
   }
 
-  async restoreFile(id) {
-    await delay(300);
-    const index = this.trashedFiles.findIndex(f => f.id === id);
-    if (index === -1) throw new Error('File not found in trash');
-    
-    const file = this.trashedFiles[index];
-    this.trashedFiles.splice(index, 1);
-    
-    // Remove deletedDate and add back to files
-    const { deletedDate, ...restoredFile } = file;
-    this.files.push(restoredFile);
-    
-    return true;
-  }
-
-  async permanentlyDeleteFile(id) {
-    await delay(300);
-    const index = this.trashedFiles.findIndex(f => f.id === id);
-    if (index === -1) throw new Error('File not found in trash');
-    
-    this.trashedFiles.splice(index, 1);
-    return true;
-  }
-
-  async emptyTrash() {
-    await delay(500);
-    this.trashedFiles = [];
-    return true;
+  async createTrashedFile(fileData) {
+    try {
+      const trashedFileService = new (await import('./trashedFileService.js')).default;
+      return await trashedFileService.create(fileData);
+    } catch (error) {
+      console.error("Error creating trashed file:", error);
+      throw error;
+    }
   }
 
   async downloadFile(id) {
     await delay(200);
-    const file = this.files.find(f => f.id === id);
+    const file = await this.getById(id);
     if (!file) throw new Error('File not found');
     
     // Simulate download
-    console.log(`Downloading file: ${file.name}`);
+    console.log(`Downloading file: ${file.Name}`);
     return true;
   }
 
   async searchFiles(query) {
-    await delay(300);
-    if (!query.trim()) return [];
-    
-    const searchTerm = query.toLowerCase();
-    const results = this.files.filter(file => 
-      file.name.toLowerCase().includes(searchTerm)
-    );
-    
-    return [...results];
+    try {
+      if (!query.trim()) return [];
+
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "size" } },
+          { field: { Name: "type" } },
+          { field: { Name: "upload_date" } },
+          { field: { Name: "modified_date" } },
+          { field: { Name: "path" } },
+          { field: { Name: "is_folder" } },
+          { field: { Name: "parent_id" } },
+          { field: { Name: "thumbnail_url" } },
+          { field: { Name: "share_url" } }
+        ],
+        where: [
+          {
+            FieldName: "Name",
+            Operator: "Contains",
+            Values: [query]
+          }
+        ]
+      };
+
+      const response = await this.apperClient.fetchRecords('file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error searching files:", error);
+      throw error;
+    }
   }
 }
 
