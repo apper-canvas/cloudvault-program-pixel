@@ -35,14 +35,14 @@ class FileService {
       }
 
       return response.data || [];
-    } catch (error) {
+} catch (error) {
       console.error("Error fetching files:", error);
       throw error;
     }
   }
 
   async getById(id) {
-    try {
+try {
       const params = {
         fields: [
           { field: { Name: "Name" } },
@@ -163,12 +163,6 @@ class FileService {
 // Get accessible files (files tagged as accessible/favorites)
   async getAccessibleFiles() {
     try {
-      const { ApperClient } = window.ApperSDK;
-      const apperClient = new ApperClient({
-        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
-        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
-      });
-
       const params = {
         fields: [
           {"field": {"Name": "Id"}},
@@ -191,7 +185,7 @@ class FileService {
         pagingInfo: {"limit": 100, "offset": 0}
       };
 
-      const response = await apperClient.fetchRecords('file', params);
+      const response = await this.apperClient.fetchRecords('file', params);
 
       if (!response?.data?.length) {
         return [];
@@ -203,7 +197,7 @@ class FileService {
       throw error;
     }
   }
-  async create(fileData) {
+async create(fileData) {
     try {
       const params = {
         records: [
@@ -245,8 +239,7 @@ class FileService {
       throw error;
     }
   }
-
-  async update(id, data) {
+async update(id, data) {
     try {
       const updateData = {
         Id: parseInt(id)
@@ -293,28 +286,68 @@ class FileService {
 
   async delete(id) {
     try {
-      // First get the file to move it to trash
+      // Get the file first to create trashed file record
       const file = await this.getById(id);
-      
-      // Create trashed file record
-      await this.createTrashedFile({
-        ...file,
-        deleted_date: new Date().toISOString()
-      });
+      if (!file) {
+        throw new Error('File not found');
+      }
 
-      // Delete from files table
-      const params = {
+      // Create trashed file record with only Updateable fields
+      const trashedFileData = {
+        Name: file.Name,
+        Tags: file.Tags,
+        size: file.size,
+        type: file.type,
+        upload_date: file.upload_date,
+        modified_date: file.modified_date,
+        deleted_date: new Date().toISOString(),
+        path: file.path,
+        is_folder: file.is_folder,
+        parent_id: file.parent_id,
+        thumbnail_url: file.thumbnail_url,
+        share_url: file.share_url
+      };
+
+      const createTrashedParams = {
+        records: [trashedFileData]
+      };
+
+      const trashedResponse = await this.apperClient.createRecord('trashed_file', createTrashedParams);
+      
+      if (!trashedResponse.success) {
+        console.error('Error creating trashed file:', trashedResponse.message);
+        throw new Error(trashedResponse.message);
+      }
+
+      if (trashedResponse.results) {
+        const failed = trashedResponse.results.filter(r => !r.success);
+        if (failed.length > 0) {
+          console.error(`Failed to create trashed file record:`, failed);
+          throw new Error('Failed to create trashed file record');
+        }
+      }
+
+      // Delete from main file table
+      const deleteParams = {
         RecordIds: [parseInt(id)]
       };
 
-      const response = await this.apperClient.deleteRecord('file', params);
-
-      if (!response.success) {
-        console.error(response.message);
-        throw new Error(response.message);
+      const deleteResponse = await this.apperClient.deleteRecord('file', deleteParams);
+      
+      if (!deleteResponse.success) {
+        console.error('Error deleting file:', deleteResponse.message);
+        throw new Error(deleteResponse.message);
       }
 
-      return true;
+      if (deleteResponse.results) {
+        const failed = deleteResponse.results.filter(r => !r.success);
+        if (failed.length > 0) {
+          console.error(`Failed to delete file:`, failed);
+          throw new Error('Failed to delete file');
+        }
+      }
+      
+      return { success: true };
     } catch (error) {
       console.error("Error deleting file:", error);
       throw error;
@@ -380,7 +413,7 @@ class FileService {
 
       return response.data || [];
     } catch (error) {
-      console.error("Error searching files:", error);
+console.error("Error searching files:", error);
       throw error;
     }
   }

@@ -118,31 +118,200 @@ class TrashedFileService {
     }
   }
 
-  async restoreFile(id) {
+async restoreFile(id) {
     try {
       // Get the trashed file
       const trashedFile = await this.getById(id);
       
-      // Create file record (restore to files table)
-      const fileService = new (await import('./fileService.js')).default;
-      const { deleted_date, ...restoredFileData } = trashedFile;
-      await fileService.create(restoredFileData);
+      if (!trashedFile) {
+        throw new Error('Trashed file not found');
+      }
+      
+      // Create in main file table with only Updateable fields
+      const restoredFileData = {
+        Name: trashedFile.Name,
+        Tags: trashedFile.Tags || '',
+        size: trashedFile.size,
+        type: trashedFile.type,
+        upload_date: trashedFile.upload_date,
+        modified_date: new Date().toISOString(),
+        path: trashedFile.path,
+        is_folder: trashedFile.is_folder,
+        parent_id: trashedFile.parent_id,
+        thumbnail_url: trashedFile.thumbnail_url,
+        share_url: trashedFile.share_url
+      };
 
-      // Delete from trashed_file table
-      const params = {
+      const createParams = {
+        records: [restoredFileData]
+      };
+
+      const createResponse = await this.apperClient.createRecord('file', createParams);
+      
+      if (!createResponse.success) {
+        console.error('Error restoring file:', createResponse.message);
+        throw new Error(createResponse.message);
+      }
+
+      if (createResponse.results) {
+        const failed = createResponse.results.filter(r => !r.success);
+        if (failed.length > 0) {
+          console.error(`Failed to restore file:`, failed);
+          throw new Error('Failed to restore file');
+        }
+      }
+
+      // Remove from trashed_file table
+      const deleteParams = {
         RecordIds: [parseInt(id)]
       };
 
-      const response = await this.apperClient.deleteRecord('trashed_file', params);
+      const deleteResponse = await this.apperClient.deleteRecord('trashed_file', deleteParams);
+      
+      if (!deleteResponse.success) {
+        console.error('Error removing from trash:', deleteResponse.message);
+        throw new Error(deleteResponse.message);
+      }
 
-      if (!response.success) {
-        console.error(response.message);
-        throw new Error(response.message);
+      if (deleteResponse.results) {
+        const failed = deleteResponse.results.filter(r => !r.success);
+        if (failed.length > 0) {
+          console.error(`Failed to remove from trash:`, failed);
+          throw new Error('Failed to remove from trash');
+        }
       }
 
       return true;
     } catch (error) {
       console.error("Error restoring file:", error);
+      throw error;
+    }
+  }
+
+  async getAll() {
+    try {
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "Tags"}},
+          {"field": {"Name": "Owner"}},
+          {"field": {"Name": "CreatedOn"}},
+          {"field": {"Name": "CreatedBy"}},
+          {"field": {"Name": "ModifiedOn"}},
+          {"field": {"Name": "ModifiedBy"}},
+          {"field": {"Name": "size"}},
+          {"field": {"Name": "type"}},
+          {"field": {"Name": "upload_date"}},
+          {"field": {"Name": "modified_date"}},
+          {"field": {"Name": "deleted_date"}},
+          {"field": {"Name": "path"}},
+          {"field": {"Name": "is_folder"}},
+          {"field": {"Name": "parent_id"}},
+          {"field": {"Name": "thumbnail_url"}},
+          {"field": {"Name": "share_url"}}
+        ],
+        orderBy: [{"fieldName": "deleted_date", "sorttype": "DESC"}],
+        pagingInfo: {"limit": 100, "offset": 0}
+      };
+      
+      const response = await this.apperClient.fetchRecords('trashed_file', params);
+      
+      if (!response.success) {
+        console.error('Error fetching trashed files:', response.message);
+        throw new Error(response.message);
+      }
+      
+      return response.data || [];
+    } catch (error) {
+      console.error('Error in getAll:', error?.response?.data?.message || error.message);
+      throw error;
+    }
+  }
+
+  async getById(id) {
+    try {
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "Tags"}},
+          {"field": {"Name": "Owner"}},
+          {"field": {"Name": "CreatedOn"}},
+          {"field": {"Name": "CreatedBy"}},
+          {"field": {"Name": "ModifiedOn"}},
+          {"field": {"Name": "ModifiedBy"}},
+          {"field": {"Name": "size"}},
+          {"field": {"Name": "type"}},
+          {"field": {"Name": "upload_date"}},
+          {"field": {"Name": "modified_date"}},
+          {"field": {"Name": "deleted_date"}},
+          {"field": {"Name": "path"}},
+          {"field": {"Name": "is_folder"}},
+          {"field": {"Name": "parent_id"}},
+          {"field": {"Name": "thumbnail_url"}},
+          {"field": {"Name": "share_url"}}
+        ]
+      };
+      
+      const response = await this.apperClient.getRecordById('trashed_file', id, params);
+      
+      if (!response.success) {
+        console.error(`Error fetching trashed file ${id}:`, response.message);
+        throw new Error(response.message);
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error(`Error in getById ${id}:`, error?.response?.data?.message || error.message);
+      throw error;
+    }
+  }
+
+  async create(fileData) {
+    try {
+      // Only include Updateable fields
+      const createData = {
+        Name: fileData.Name || fileData.name,
+        Tags: fileData.Tags || fileData.tags || '',
+        size: fileData.size || 0,
+        type: fileData.type || 'file',
+        upload_date: fileData.upload_date || fileData.uploadDate || fileData.created_date,
+        modified_date: fileData.modified_date || fileData.modifiedDate || new Date().toISOString(),
+        deleted_date: fileData.deleted_date || new Date().toISOString(),
+        path: fileData.path || '',
+        is_folder: fileData.is_folder || fileData.isFolder || false,
+        parent_id: fileData.parent_id || fileData.parentId || '',
+        thumbnail_url: fileData.thumbnail_url || fileData.thumbnailUrl || '',
+        share_url: fileData.share_url || fileData.shareUrl || ''
+      };
+
+      const params = {
+        records: [createData]
+      };
+
+      const response = await this.apperClient.createRecord('trashed_file', params);
+      
+      if (!response.success) {
+        console.error('Error creating trashed file:', response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to create trashed file:`, failed);
+          failed.forEach(record => {
+            if (record.message) {
+              throw new Error(record.message);
+            }
+          });
+        }
+        
+        return successful.length > 0 ? successful[0].data : null;
+      }
+    } catch (error) {
+      console.error('Error in create:', error?.response?.data?.message || error.message);
       throw error;
     }
   }
@@ -154,47 +323,65 @@ class TrashedFileService {
       };
 
       const response = await this.apperClient.deleteRecord('trashed_file', params);
-
+      
       if (!response.success) {
-        console.error(response.message);
+        console.error('Error permanently deleting file:', response.message);
         throw new Error(response.message);
       }
 
-      return true;
+      if (response.results) {
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to permanently delete file:`, failed);
+          failed.forEach(record => {
+            if (record.message) {
+              throw new Error(record.message);
+            }
+          });
+        }
+        
+        return true;
+      }
     } catch (error) {
-      console.error("Error permanently deleting file:", error);
+      console.error('Error in permanentlyDeleteFile:', error?.response?.data?.message || error.message);
       throw error;
     }
   }
 
   async emptyTrash() {
     try {
-      // Get all trashed files
-      const trashedFiles = await this.getAll();
+      const allTrashedFiles = await this.getAll();
       
-      if (trashedFiles.length === 0) {
+      if (allTrashedFiles.length === 0) {
         return true;
       }
 
-      const recordIds = trashedFiles.map(file => file.Id);
-      
+      const recordIds = allTrashedFiles.map(file => file.Id);
       const params = {
         RecordIds: recordIds
       };
 
       const response = await this.apperClient.deleteRecord('trashed_file', params);
-
+      
       if (!response.success) {
-        console.error(response.message);
+        console.error('Error emptying trash:', response.message);
         throw new Error(response.message);
       }
 
-      return true;
+      if (response.results) {
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to empty trash completely:`, failed);
+          // Don't throw error for partial success - some files deleted
+        }
+        
+        return true;
+      }
     } catch (error) {
-      console.error("Error emptying trash:", error);
+      console.error('Error in emptyTrash:', error?.response?.data?.message || error.message);
       throw error;
     }
   }
 }
-
-export default new TrashedFileService();

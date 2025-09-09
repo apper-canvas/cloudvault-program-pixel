@@ -225,7 +225,236 @@ class ShareService {
   getRandomFileType() {
     const types = ['image/jpeg', 'image/png', 'application/pdf', 'text/plain', 'application/zip'];
     return types[Math.floor(Math.random() * types.length)];
+throw error;
   }
-}
 
-export default new ShareService();
+  async getAll() {
+    try {
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "Tags"}},
+          {"field": {"Name": "Owner"}},
+          {"field": {"Name": "CreatedOn"}},
+          {"field": {"Name": "CreatedBy"}},
+          {"field": {"Name": "ModifiedOn"}},
+          {"field": {"Name": "ModifiedBy"}},
+          {"field": {"Name": "file_id"}},
+          {"field": {"Name": "file_name"}},
+          {"field": {"Name": "url"}},
+          {"field": {"Name": "created_date"}},
+          {"field": {"Name": "expiry_date"}},
+          {"field": {"Name": "password"}}
+        ],
+        orderBy: [{"fieldName": "CreatedOn", "sorttype": "DESC"}],
+        pagingInfo: {"limit": 100, "offset": 0}
+      };
+      
+      const response = await this.apperClient.fetchRecords('share_link', params);
+      
+      if (!response.success) {
+        console.error('Error fetching share links:', response.message);
+        throw new Error(response.message);
+      }
+      
+      return response.data || [];
+    } catch (error) {
+      console.error('Error in getAll:', error?.response?.data?.message || error.message);
+      throw error;
+    }
+  }
+
+  async getById(id) {
+    try {
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "Tags"}},
+          {"field": {"Name": "Owner"}},
+          {"field": {"Name": "CreatedOn"}},
+          {"field": {"Name": "CreatedBy"}},
+          {"field": {"Name": "ModifiedOn"}},
+          {"field": {"Name": "ModifiedBy"}},
+          {"field": {"Name": "file_id"}},
+          {"field": {"Name": "file_name"}},
+          {"field": {"Name": "url"}},
+          {"field": {"Name": "created_date"}},
+          {"field": {"Name": "expiry_date"}},
+          {"field": {"Name": "password"}}
+        ]
+      };
+      
+      const response = await this.apperClient.getRecordById('share_link', id, params);
+      
+      if (!response.success) {
+        console.error(`Error fetching share link ${id}:`, response.message);
+        throw new Error(response.message);
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error(`Error in getById ${id}:`, error?.response?.data?.message || error.message);
+      throw error;
+    }
+  }
+
+  async getSharedFiles() {
+    try {
+      const result = await this.getAll();
+      return result;
+    } catch (error) {
+      console.error('Error in getSharedFiles:', error?.response?.data?.message || error.message);
+      throw error;
+    }
+  }
+
+  async createShareLink(fileId, options = {}) {
+    try {
+      const shareCode = this.generateShareCode();
+      const shareUrl = `${window.location.origin}/share/${shareCode}`;
+      
+      // Only include Updateable fields
+      const shareData = {
+        Name: options.name || `Share-${shareCode}`,
+        Tags: options.tags || '',
+        file_id: fileId.toString(),
+        file_name: options.fileName || options.file_name || '',
+        url: shareUrl,
+        created_date: new Date().toISOString(),
+        expiry_date: options.expiryDate || options.expiry_date || null,
+        password: options.password || ''
+      };
+
+      const params = {
+        records: [shareData]
+      };
+
+      const response = await this.apperClient.createRecord('share_link', params);
+      
+      if (!response.success) {
+        console.error('Error creating share link:', response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to create share link:`, failed);
+          failed.forEach(record => {
+            if (record.message) {
+              throw new Error(record.message);
+            }
+          });
+        }
+        
+        const createdRecord = successful.length > 0 ? successful[0].data : null;
+        return {
+          ...createdRecord,
+          shareCode,
+          shareUrl
+        };
+      }
+    } catch (error) {
+      console.error('Error in createShareLink:', error?.response?.data?.message || error.message);
+      throw error;
+    }
+  }
+
+  async updateShareLink(id, data) {
+    try {
+      // Only include Updateable fields
+      const updateData = {
+        Id: parseInt(id),
+        Name: data.Name || data.name,
+        Tags: data.Tags || data.tags,
+        file_id: data.file_id || data.fileId,
+        file_name: data.file_name || data.fileName,
+        url: data.url,
+        expiry_date: data.expiry_date || data.expiryDate,
+        password: data.password
+      };
+
+      // Remove undefined values
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === undefined) {
+          delete updateData[key];
+        }
+      });
+
+      const params = {
+        records: [updateData]
+      };
+
+      const response = await this.apperClient.updateRecord('share_link', params);
+      
+      if (!response.success) {
+        console.error('Error updating share link:', response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to update share link:`, failed);
+          failed.forEach(record => {
+            if (record.message) {
+              throw new Error(record.message);
+            }
+          });
+        }
+        
+        return successful.length > 0 ? successful[0].data : null;
+      }
+    } catch (error) {
+      console.error('Error in updateShareLink:', error?.response?.data?.message || error.message);
+      throw error;
+    }
+  }
+
+  async revokeShareLink(id) {
+    try {
+      return await this.delete(id);
+    } catch (error) {
+      console.error('Error in revokeShareLink:', error?.response?.data?.message || error.message);
+      throw error;
+    }
+  }
+
+  async delete(id) {
+    try {
+      const params = {
+        RecordIds: [parseInt(id)]
+      };
+
+      const response = await this.apperClient.deleteRecord('share_link', params);
+      
+      if (!response.success) {
+        console.error('Error deleting share link:', response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to delete share link:`, failed);
+          failed.forEach(record => {
+            if (record.message) {
+              throw new Error(record.message);
+            }
+          });
+        }
+        
+        return true;
+      }
+    } catch (error) {
+      console.error('Error in delete:', error?.response?.data?.message || error.message);
+      throw error;
+    }
+  }
+
+}
