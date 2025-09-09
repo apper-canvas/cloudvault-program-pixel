@@ -160,7 +160,49 @@ class FileService {
       throw error;
     }
   }
+// Get accessible files (files tagged as accessible/favorites)
+  async getAccessibleFiles() {
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
 
+      const params = {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "Tags"}},
+          {"field": {"Name": "size"}},
+          {"field": {"Name": "type"}},
+          {"field": {"Name": "upload_date"}},
+          {"field": {"Name": "modified_date"}},
+          {"field": {"Name": "path"}},
+          {"field": {"Name": "is_folder"}},
+          {"field": {"Name": "parent_id"}},
+          {"field": {"Name": "thumbnail_url"}},
+          {"field": {"Name": "share_url"}}
+        ],
+        where: [
+          {"FieldName": "Tags", "Operator": "Contains", "Values": ["accessible"], "Include": true}
+        ],
+        orderBy: [{"fieldName": "modified_date", "sorttype": "DESC"}],
+        pagingInfo: {"limit": 100, "offset": 0}
+      };
+
+      const response = await apperClient.fetchRecords('file', params);
+
+      if (!response?.data?.length) {
+        return [];
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching accessible files:', error?.response?.data?.message || error);
+      throw error;
+    }
+  }
   async create(fileData) {
     try {
       const params = {

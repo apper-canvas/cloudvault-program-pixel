@@ -3,8 +3,8 @@ import FilesPage from '@/components/pages/FilesPage';
 import RecentPage from '@/components/pages/RecentPage';
 import SharedPage from '@/components/pages/SharedPage';
 import TrashPage from '@/components/pages/TrashPage';
+import AccessiblePage from '@/components/pages/AccessiblePage';
 import NotFoundPage from '@/components/pages/NotFoundPage';
-
 export const routes = {
   home: {
     id: 'home',
@@ -34,12 +34,19 @@ component: RecentPage
     icon: 'Share2',
 component: SharedPage
   },
-  trash: {
+trash: {
     id: 'trash',
     label: 'Trash',
     path: '/trash',
     icon: 'Trash2',
-component: TrashPage
+    component: TrashPage
+  },
+  accessible: {
+    id: 'accessible',
+    label: 'Accessible',
+    path: '/accessible',
+    icon: 'Star',
+    component: AccessiblePage
   }
 };
 
