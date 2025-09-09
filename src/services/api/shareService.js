@@ -222,10 +222,9 @@ class ShareService {
     return result;
   }
 
-  getRandomFileType() {
+getRandomFileType() {
     const types = ['image/jpeg', 'image/png', 'application/pdf', 'text/plain', 'application/zip'];
     return types[Math.floor(Math.random() * types.length)];
-throw error;
   }
 
   async getAll() {
