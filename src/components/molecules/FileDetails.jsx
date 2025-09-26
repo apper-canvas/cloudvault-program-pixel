@@ -7,11 +7,17 @@ const FileDetails = ({ file, showPath = false, isRecent = false, isTrash = false
             <h4 className={`text-sm font-medium text-gray-900 truncate ${isTrash ? 'text-gray-700' : 'group-hover:text-primary transition-colors'}`} title={file.name}>
                 {file.name}
             </h4>
-            <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+<div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
                 <span>
                     {file.isFolder ? 'Folder' : formatFileSize(file.size)}
                 </span>
                 <span>•</span>
+                {file.storageType && (
+                    <>
+                        <span>{file.storageType}</span>
+                        <span>•</span>
+                    </>
+                )}
                 {isShared && file.createdDate && (
                     <>
                         <span>Shared {formatFileDate(file.createdDate)}</span>

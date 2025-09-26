@@ -51,7 +51,7 @@ const loadFiles = async () => {
     try {
       const result = await fileService.getFilesByPath(currentPath);
       // Map database fields to component expected format
-      const mappedFiles = result.map(file => ({
+const mappedFiles = result.map(file => ({
         id: file.Id,
         name: file.Name,
         size: file.size,
@@ -62,7 +62,8 @@ const loadFiles = async () => {
         isFolder: file.is_folder,
         parentId: file.parent_id,
         thumbnailUrl: file.thumbnail_url,
-        shareUrl: file.share_url
+        shareUrl: file.share_url,
+        storageType: file.storage_type
       }));
       
       // Filter files based on search query if provided

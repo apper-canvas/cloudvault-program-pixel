@@ -1,5 +1,5 @@
 [
-  {
+{
     "id": "1",
     "name": "Project Proposal.pdf",
     "size": 2458624,
@@ -10,9 +10,10 @@
     "isFolder": false,
     "parentId": null,
     "thumbnailUrl": null,
-    "shareUrl": null
+    "shareUrl": null,
+    "storageType": "Cloud"
   },
-  {
+{
     "id": "2",
     "name": "Team Photos",
     "size": 0,
@@ -23,9 +24,10 @@
     "isFolder": true,
     "parentId": null,
     "thumbnailUrl": null,
-    "shareUrl": null
+    "shareUrl": null,
+    "storageType": "Local"
   },
-  {
+{
     "id": "3",
     "name": "Budget_2024.xlsx",
     "size": 1024768,
@@ -36,9 +38,10 @@
     "isFolder": false,
     "parentId": null,
     "thumbnailUrl": null,
-    "shareUrl": null
+    "shareUrl": null,
+    "storageType": "Archive"
   },
-  {
+{
     "id": "4",
     "name": "presentation_draft.pptx",
     "size": 5242880,
@@ -49,9 +52,10 @@
     "isFolder": false,
     "parentId": null,
     "thumbnailUrl": null,
-    "shareUrl": null
+    "shareUrl": null,
+    "storageType": "Local"
   },
-  {
+{
     "id": "5",
     "name": "team_meeting.jpg",
     "size": 3145728,
@@ -62,9 +66,10 @@
     "isFolder": false,
     "parentId": "2",
     "thumbnailUrl": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&h=300&fit=crop",
-    "shareUrl": null
+    "shareUrl": null,
+    "storageType": "Sync"
   },
-  {
+{
     "id": "6",
     "name": "office_space.png",
     "size": 2097152,
@@ -75,9 +80,10 @@
     "isFolder": false,
     "parentId": "2",
     "thumbnailUrl": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop",
-    "shareUrl": null
+    "shareUrl": null,
+    "storageType": "Sync"
   },
-  {
+{
     "id": "7",
     "name": "Documents",
     "size": 0,
@@ -88,9 +94,10 @@
     "isFolder": true,
     "parentId": null,
     "thumbnailUrl": null,
-    "shareUrl": null
+    "shareUrl": null,
+    "storageType": "Archive"
   },
-  {
+{
     "id": "8",
     "name": "contract_template.docx",
     "size": 512000,
@@ -101,9 +108,10 @@
     "isFolder": false,
     "parentId": "7",
     "thumbnailUrl": null,
-    "shareUrl": null
+    "shareUrl": null,
+    "storageType": "Backup"
   },
-  {
+{
     "id": "9",
     "name": "meeting_notes.txt",
     "size": 8192,
@@ -114,9 +122,10 @@
     "isFolder": false,
     "parentId": "7",
     "thumbnailUrl": null,
-    "shareUrl": null
+    "shareUrl": null,
+    "storageType": "Local"
   },
-  {
+{
     "id": "10",
     "name": "logo_design.svg",
     "size": 65536,
@@ -127,6 +136,7 @@
     "isFolder": false,
     "parentId": null,
     "thumbnailUrl": "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop",
-    "shareUrl": null
+    "shareUrl": null,
+    "storageType": "Cloud"
   }
 ]

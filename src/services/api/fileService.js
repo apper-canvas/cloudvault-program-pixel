@@ -13,7 +13,7 @@ class FileService {
   async getAll() {
     try {
       const params = {
-        fields: [
+fields: [
           { field: { Name: "Name" } },
           { field: { Name: "size" } },
           { field: { Name: "type" } },
@@ -23,7 +23,8 @@ class FileService {
           { field: { Name: "is_folder" } },
           { field: { Name: "parent_id" } },
           { field: { Name: "thumbnail_url" } },
-          { field: { Name: "share_url" } }
+          { field: { Name: "share_url" } },
+          { field: { Name: "storage_type" } }
         ]
       };
 
@@ -45,7 +46,7 @@ class FileService {
 try {
       const params = {
         fields: [
-          { field: { Name: "Name" } },
+{ field: { Name: "Name" } },
           { field: { Name: "size" } },
           { field: { Name: "type" } },
           { field: { Name: "upload_date" } },
@@ -54,7 +55,8 @@ try {
           { field: { Name: "is_folder" } },
           { field: { Name: "parent_id" } },
           { field: { Name: "thumbnail_url" } },
-          { field: { Name: "share_url" } }
+          { field: { Name: "share_url" } },
+          { field: { Name: "storage_type" } }
         ]
       };
 
@@ -75,7 +77,7 @@ try {
   async getFilesByPath(path = '') {
     try {
       const params = {
-        fields: [
+fields: [
           { field: { Name: "Name" } },
           { field: { Name: "size" } },
           { field: { Name: "type" } },
@@ -85,7 +87,8 @@ try {
           { field: { Name: "is_folder" } },
           { field: { Name: "parent_id" } },
           { field: { Name: "thumbnail_url" } },
-          { field: { Name: "share_url" } }
+          { field: { Name: "share_url" } },
+          { field: { Name: "storage_type" } }
         ],
         where: [
           {
@@ -116,7 +119,7 @@ try {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const params = {
-        fields: [
+fields: [
           { field: { Name: "Name" } },
           { field: { Name: "size" } },
           { field: { Name: "type" } },
@@ -126,7 +129,8 @@ try {
           { field: { Name: "is_folder" } },
           { field: { Name: "parent_id" } },
           { field: { Name: "thumbnail_url" } },
-          { field: { Name: "share_url" } }
+          { field: { Name: "share_url" } },
+          { field: { Name: "storage_type" } }
         ],
         where: [
           {
@@ -165,7 +169,7 @@ try {
     try {
       const params = {
         fields: [
-          {"field": {"Name": "Id"}},
+{"field": {"Name": "Id"}},
           {"field": {"Name": "Name"}},
           {"field": {"Name": "Tags"}},
           {"field": {"Name": "size"}},
@@ -176,7 +180,8 @@ try {
           {"field": {"Name": "is_folder"}},
           {"field": {"Name": "parent_id"}},
           {"field": {"Name": "thumbnail_url"}},
-          {"field": {"Name": "share_url"}}
+          {"field": {"Name": "share_url"}},
+          {"field": {"Name": "storage_type"}}
         ],
         where: [
           {"FieldName": "Tags", "Operator": "Contains", "Values": ["accessible"], "Include": true}
@@ -202,7 +207,7 @@ async create(fileData) {
       const params = {
         records: [
           {
-            Name: fileData.name,
+Name: fileData.name,
             size: fileData.size,
             type: fileData.type,
             upload_date: fileData.uploadDate || new Date().toISOString(),
@@ -211,7 +216,8 @@ async create(fileData) {
             is_folder: fileData.isFolder || false,
             parent_id: fileData.parentId || "",
             thumbnail_url: fileData.thumbnailUrl || "",
-            share_url: fileData.shareUrl || ""
+            share_url: fileData.shareUrl || "",
+            storage_type: fileData.storageType || "Local"
           }
         ]
       };
@@ -254,7 +260,8 @@ async update(id, data) {
       if (data.is_folder !== undefined) updateData.is_folder = data.is_folder;
       if (data.parent_id !== undefined) updateData.parent_id = data.parent_id;
       if (data.thumbnail_url !== undefined) updateData.thumbnail_url = data.thumbnail_url;
-      if (data.share_url !== undefined) updateData.share_url = data.share_url;
+if (data.share_url !== undefined) updateData.share_url = data.share_url;
+      if (data.storage_type !== undefined) updateData.storage_type = data.storage_type;
 
       const params = {
         records: [updateData]
@@ -305,7 +312,8 @@ async update(id, data) {
         is_folder: file.is_folder,
         parent_id: file.parent_id,
         thumbnail_url: file.thumbnail_url,
-        share_url: file.share_url
+share_url: file.share_url,
+        storage_type: file.storage_type
       };
 
       const createTrashedParams = {
@@ -384,7 +392,7 @@ async update(id, data) {
 
       const params = {
         fields: [
-          { field: { Name: "Name" } },
+{ field: { Name: "Name" } },
           { field: { Name: "size" } },
           { field: { Name: "type" } },
           { field: { Name: "upload_date" } },
@@ -393,7 +401,8 @@ async update(id, data) {
           { field: { Name: "is_folder" } },
           { field: { Name: "parent_id" } },
           { field: { Name: "thumbnail_url" } },
-          { field: { Name: "share_url" } }
+          { field: { Name: "share_url" } },
+          { field: { Name: "storage_type" } }
         ],
         where: [
           {
