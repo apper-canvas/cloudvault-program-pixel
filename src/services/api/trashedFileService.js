@@ -1,4 +1,18 @@
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+class TrashedFileService {
+  constructor() {
+    this.apperClient = null;
+    this.initializeApperClient();
+  }
+
+  initializeApperClient() {
+    if (typeof window !== 'undefined' && window.ApperSDK) {
+      const { ApperClient } = window.ApperSDK;
+      this.apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+    }
+  }
 
 class TrashedFileService {
   constructor() {
@@ -384,4 +398,140 @@ async restoreFile(id) {
       throw error;
     }
   }
+async restore(id) {
+    try {
+      if (!this.apperClient) {
+        throw new Error('ApperClient not initialized');
+      }
+
+      const params = {
+        records: [{
+          Id: parseInt(id),
+          deleted_date: null
+        }]
+      };
+
+      const response = await this.apperClient.updateRecord('trashed_file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const failed = response.results.filter(r => !r.success);
+        if (failed.length > 0) {
+          console.error(`Failed to restore file: ${JSON.stringify(failed)}`);
+          throw new Error(failed[0].message || 'Failed to restore file');
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error(`Error restoring trashed file with ID ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async permanentDelete(id) {
+    try {
+      if (!this.apperClient) {
+        throw new Error('ApperClient not initialized');
+      }
+
+      const params = {
+        RecordIds: [parseInt(id)]
+      };
+
+      const response = await this.apperClient.deleteRecord('trashed_file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const failed = response.results.filter(r => !r.success);
+        if (failed.length > 0) {
+          console.error(`Failed to permanently delete file: ${JSON.stringify(failed)}`);
+          throw new Error(failed[0].message || 'Failed to permanently delete file');
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error(`Error permanently deleting trashed file with ID ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async bulkRestore(ids) {
+    try {
+      if (!this.apperClient) {
+        throw new Error('ApperClient not initialized');
+      }
+
+      const records = ids.map(id => ({
+        Id: parseInt(id),
+        deleted_date: null
+      }));
+
+      const params = { records };
+
+      const response = await this.apperClient.updateRecord('trashed_file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const failed = response.results.filter(r => !r.success);
+        if (failed.length > 0) {
+          console.error(`Failed to restore ${failed.length} files: ${JSON.stringify(failed)}`);
+        }
+        return response.results.filter(r => r.success);
+      }
+
+      return [];
+    } catch (error) {
+      console.error("Error bulk restoring trashed files:", error);
+      throw error;
+    }
+  }
+
+  async bulkPermanentDelete(ids) {
+    try {
+      if (!this.apperClient) {
+        throw new Error('ApperClient not initialized');
+      }
+
+      const params = {
+        RecordIds: ids.map(id => parseInt(id))
+      };
+
+      const response = await this.apperClient.deleteRecord('trashed_file', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const failed = response.results.filter(r => !r.success);
+        if (failed.length > 0) {
+          console.error(`Failed to permanently delete ${failed.length} files: ${JSON.stringify(failed)}`);
+        }
+        return response.results.filter(r => r.success);
+      }
+
+      return [];
+    } catch (error) {
+      console.error("Error bulk permanently deleting trashed files:", error);
+      throw error;
+    }
+  }
 }
+
+const trashedFileService = new TrashedFileService();
+export default trashedFileService;
